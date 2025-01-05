@@ -164,18 +164,20 @@ public partial class MainWindow : Window
 
 
     public static string getAPikey() {
+        var apikey = "";
         // Path to the configuration file
-        var configFilePath = "config.json"; 
-        // Read the configuration file
-        var json = File.ReadAllText(configFilePath); 
-        // Parse the JSON 
-        var jObject = JObject.Parse(json); 
-        // Get the API key 
-        var apiKey = jObject["APIKey"]?.ToString(); 
-
-        if (apiKey == null) {
-            return "Changer_text_là"; // mettre API_key si fichier conf n'existe pas
+        if (File.Exists("config.json")) {
+            var configFilePath = "config.json"; 
+            // Read the configuration file
+            var json = File.ReadAllText(configFilePath); 
+            // Parse the JSON 
+            var jObject = JObject.Parse(json); 
+            // Get the API key 
+            apikey = jObject["APIKey"]?.ToString(); 
         }
-        return apiKey; // peut pas être null, normalement
+        else {
+            apikey = "changer ce text"; // changer ce text pour tester le code avec votre cle api
+        }
+        return apikey; // peut pas être null, normalement
     }
 }
