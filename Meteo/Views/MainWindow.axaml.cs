@@ -3,12 +3,16 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using Newtonsoft.Json.Linq;
 
 namespace Meteo.Views;
 
 public partial class MainWindow : Window
 {
+
+    string apiKey = getAPikey();
     public MainWindow()
     {
         InitializeComponent();
@@ -16,16 +20,13 @@ public partial class MainWindow : Window
         _ = InitializeApiKeyAndMakeRequest();
     }
 
-    public async Task InitializeApiKeyAndMakeRequest()
+    public async Task InitializeApiKeyAndMakeRequest(string city_api = "Bordeaux")
     {
     try
     {
-        // Retrieve the API key
-        string apiKey = getAPikey();
 
         // Make the API request
-        string response = await MakeApiRequestAsync(apiKey,"Bordeaux");
-
+        string response = await MakeApiRequestAsync(apiKey,city_api);
         // Display the response
         var city = this.FindControl<TextBlock>("City");
         var lat = this.FindControl<TextBlock>("Lat_and_long");
@@ -37,11 +38,11 @@ public partial class MainWindow : Window
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.  
 
-        city.Text = json["name"].ToString();
-        lat.Text = json["coord"]["lon"].ToString() + " " + json["coord"]["lat"].ToString();
-        temp.Text = json["main"]["temp"].ToString();
-        desc.Text = json["weather"][0]["description"].ToString();
-        humid.Text = json["main"]["humidity"].ToString();
+        city.Text = "City name : " + json["name"].ToString();
+        lat.Text = "Latitude and longitute : " + json["coord"]["lon"].ToString() + " " + json["coord"]["lat"].ToString();
+        temp.Text = "Temperature : " + json["main"]["temp"].ToString();
+        desc.Text = "Description : " + json["weather"][0]["description"].ToString();
+        humid.Text = "Humidity : " + json["main"]["humidity"].ToString();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.  
         
     }
@@ -56,8 +57,22 @@ public partial class MainWindow : Window
         }
     }
     }
+    private void OnSubmitClicked(object sender, RoutedEventArgs e)
+    {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+        string inputText = inputTextBox.Text;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+        if (inputText == null) {
+            inputText = "Bordeaux";
+        }
+        _ = InitializeApiKeyAndMakeRequest(inputText);
+    }
 
-
+    private void OnKeyDown(object sender, KeyEventArgs e) {
+        if (e.Key == Key.Enter) {
+            OnSubmitClicked(sender, null);
+        }
+    }
 
     public static async Task<string> MakeApiRequestAsync(string apiKey, string city)
     {
