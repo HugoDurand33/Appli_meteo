@@ -6,6 +6,7 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using Meteo.ViewModels;
 using Meteo.Views;
+using System;
 
 namespace Meteo;
 
