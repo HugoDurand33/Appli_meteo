@@ -15,7 +15,12 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <StackPanel> 
-        <TextBlock Name="ApiKeyTextBlock" Text="API Key will be shown here" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+    <StackPanel Margin="25,10,0,0" HorizontalAlignment="Left"> 
+        <TextBlock Name="City" Text="City here" FontSize="16"  VerticalAlignment="Center" Margin="0,20,0,0"/>
+        <TextBlock Name="Lat_and_long" Text="coordonates here" FontSize="16"  VerticalAlignment="Center" Margin="0,20,0,0"/>
+        <TextBlock Name="temp" Text="temp here" FontSize="16"  VerticalAlignment="Center" Margin="0,20,0,0"/>
+        <TextBlock Name="description" Text="description here" FontSize="16" VerticalAlignment="Center" Margin="0,20,0,0"/>
+        <TextBlock Name="humidity" Text="humidity here" FontSize="16"  VerticalAlignment="Center" Margin="0,20,0,0"/>  
     </StackPanel>
 </Window>
