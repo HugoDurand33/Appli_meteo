@@ -43,7 +43,7 @@ public partial class MainWindow : Window
 #pragma warning disable CS8602 // Dereference of a possibly null reference.  
 
         city.Text = "City name : " + json["name"].ToString();
-        lat.Text = "Latitude and longitute : " + json["coord"]["lon"].ToString() + " " + json["coord"]["lat"].ToString();
+        lat.Text = "Latitude and longitude : " + json["coord"]["lon"].ToString() + " " + json["coord"]["lat"].ToString();
         temp.Text = "Temperature : " + json["main"]["temp"].ToString() + "°C";
         desc.Text = "Description : " + json["weather"][0]["description"].ToString();
         humid.Text = "Humidity : " + json["main"]["humidity"].ToString() + "%";
@@ -61,7 +61,7 @@ public partial class MainWindow : Window
         }
     }
     }
-    private void OnSubmitClicked(object sender, RoutedEventArgs e)
+    private void OnSubmitClicked(object sender, RoutedEventArgs? e)
     {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
         string inputText = inputTextBox.Text;
@@ -128,7 +128,7 @@ public partial class MainWindow : Window
             var humid_forecast = this.FindControl<TextBlock>("humidity_forecast");
 
             city_forecast.Text = "City name : " + json["city"]["name"].ToString();
-            lat_forecast.Text = "Latitude and longitute : " + json["city"]["coord"]["lon"].ToString() + " " + json["city"]["coord"]["lat"].ToString();
+            lat_forecast.Text = "Latitude and longitude : " + json["city"]["coord"]["lon"].ToString() + " " + json["city"]["coord"]["lat"].ToString();
             int cpt = 0;
             foreach (var item in json["list"])
             {
@@ -164,7 +164,7 @@ public partial class MainWindow : Window
 
 
     public static string getAPikey() {
-        // Path to the configuration file 
+        // Path to the configuration file
         var configFilePath = "config.json"; 
         // Read the configuration file
         var json = File.ReadAllText(configFilePath); 
