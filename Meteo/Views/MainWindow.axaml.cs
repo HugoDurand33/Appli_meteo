@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -18,6 +21,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         this.DataContext = this;
         _ = InitializeApiKeyAndMakeRequest();
+        _ = MakeApiRequestAsyncForecast("Bordeaux");
     }
 
     public async Task InitializeApiKeyAndMakeRequest(string city_api = "Bordeaux")
@@ -26,7 +30,7 @@ public partial class MainWindow : Window
     {
 
         // Make the API request
-        string response = await MakeApiRequestAsync(apiKey,city_api);
+        string response = await MakeApiRequestAsync(city_api);
         // Display the response
         var city = this.FindControl<TextBlock>("City");
         var lat = this.FindControl<TextBlock>("Lat_and_long");
@@ -40,9 +44,9 @@ public partial class MainWindow : Window
 
         city.Text = "City name : " + json["name"].ToString();
         lat.Text = "Latitude and longitute : " + json["coord"]["lon"].ToString() + " " + json["coord"]["lat"].ToString();
-        temp.Text = "Temperature : " + json["main"]["temp"].ToString();
+        temp.Text = "Temperature : " + json["main"]["temp"].ToString() + "°C";
         desc.Text = "Description : " + json["weather"][0]["description"].ToString();
-        humid.Text = "Humidity : " + json["main"]["humidity"].ToString();
+        humid.Text = "Humidity : " + json["main"]["humidity"].ToString() + "%";
 #pragma warning restore CS8602 // Dereference of a possibly null reference.  
         
     }
@@ -66,6 +70,7 @@ public partial class MainWindow : Window
             inputText = "Bordeaux";
         }
         _ = InitializeApiKeyAndMakeRequest(inputText);
+        _ = MakeApiRequestAsyncForecast(inputText);
     }
 
     private void OnKeyDown(object sender, KeyEventArgs e) {
@@ -74,7 +79,7 @@ public partial class MainWindow : Window
         }
     }
 
-    public static async Task<string> MakeApiRequestAsync(string apiKey, string city)
+    public async Task<string> MakeApiRequestAsync(string city)
     {
         using (var client = new HttpClient())
         {
@@ -94,6 +99,68 @@ public partial class MainWindow : Window
             return responseBody;
         }
     }
+
+    public async Task MakeApiRequestAsyncForecast(string city,int i = 0)
+    {
+        using (var client = new HttpClient())
+        {
+            // Set the base address for the HttpClient
+            client.BaseAddress = new Uri("https://api.openweathermap.org");
+
+
+            // Send the GET request
+            var response = await client.GetAsync($"/data/2.5/forecast?q={city}&appid={apiKey}&units=metric");
+
+            // Check if the request was successful
+            response.EnsureSuccessStatusCode();
+
+            // Read the response content
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            var json = JObject.Parse(responseBody);
+
+#pragma warning disable CS8602 // Dereference of a possibly null reference. 
+
+            var city_forecast = this.FindControl<TextBlock>("City_forecast");
+            var lat_forecast = this.FindControl<TextBlock>("Lat_and_long_forecast");
+            var temp_forecast = this.FindControl<TextBlock>("Temp_forecast");
+            var desc_forecast = this.FindControl<TextBlock>("description_forecast");
+            var humid_forecast = this.FindControl<TextBlock>("humidity_forecast");
+
+            city_forecast.Text = "City name : " + json["city"]["name"].ToString();
+            lat_forecast.Text = "Latitude and longitute : " + json["city"]["coord"]["lon"].ToString() + " " + json["city"]["coord"]["lat"].ToString();
+            int cpt = 0;
+            foreach (var item in json["list"])
+            {
+                string dateTime = item["dt_txt"].ToString();
+                DateTime date = DateTime.Parse(dateTime);
+
+                if (date.Hour == 12) {
+                    if(cpt == i) {
+                        temp_forecast.Text = "Temperature : " + item["main"]["temp"].ToString() + "°C";
+                        desc_forecast.Text = "Description : " + item["weather"][0]["description"].ToString();
+                        humid_forecast.Text = "Humidity : " + item["main"]["humidity"].ToString() + "%";
+                    }
+                    cpt += 1;
+                }
+            }
+#pragma warning restore CS8602 // Converting null literal or possible null value to non-nullable type.
+        }
+    }
+
+    private void OnForecastSelectionChanged(object sender, RoutedEventArgs  args)
+    {
+        int selectedIndex = forecastComboBox.SelectedIndex;
+#pragma warning disable CS8600 ,CS8604 // Converting null literal or possible null value to non-nullable type.
+        string inputText = inputTextBox.Text;
+
+
+        _ = MakeApiRequestAsyncForecast(inputText,selectedIndex);
+#pragma warning restore CS8600, CS8604 // Converting null literal or possible null value to non-nullable type.
+    }
+
+    
+
 
 
     public static string getAPikey() {
