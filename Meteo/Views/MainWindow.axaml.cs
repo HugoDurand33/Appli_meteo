@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -134,6 +135,7 @@ public partial class MainWindow : Window
             {
                 string dateTime = item["dt_txt"].ToString();
                 DateTime date = DateTime.Parse(dateTime);
+                ComboBoxItem text_combobox = forecastComboBox.Items[cpt] as ComboBoxItem;
 
                 if (date.Hour == 12) {
                     if(cpt == i) {
@@ -141,6 +143,9 @@ public partial class MainWindow : Window
                         desc_forecast.Text = "Description : " + item["weather"][0]["description"].ToString();
                         humid_forecast.Text = "Humidity : " + item["main"]["humidity"].ToString() + "%";
                     }
+                    text_combobox.Content = item["dt"];
+                    string formatted_date = date.ToString("dd MMMM yyyy , hh", CultureInfo.CreateSpecificCulture("fr-FR"));
+                    text_combobox.Content = formatted_date + ":00";
                     cpt += 1;
                 }
             }
