@@ -83,23 +83,27 @@ public partial class MainWindow : Window
 
     private void OnKeyDownChangeDefaultCity(object sender, KeyEventArgs e) {
         if (e.Key == Key.Enter) {
-            if (File.Exists("options.json")) {
-                var configFilePath = "options.json"; 
-            
-                var json = File.ReadAllText(configFilePath); 
-             
-                dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
-
-                string inputText = inputDefaultCity.Text;
-
-                if (inputText == null) {
-                    return;
+            if (!File.Exists("options.json")) {
+                using (StreamWriter sw = File.CreateText("options.json")) {
+                    sw.WriteLine("{");
+                    sw.WriteLine("  \"city\":\"Moscou\"");
+                    sw.WriteLine("}");
                 }
-                jsonObj["city"] = inputText;
-                string output = Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented);
-                File.WriteAllText("options.json", output);
-
             }
+            var configFilePath = "options.json"; 
+            
+            var json = File.ReadAllText(configFilePath); 
+             
+            dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+
+            string inputText = inputDefaultCity.Text;
+
+            if (inputText == null) {
+                return;
+            }
+            jsonObj["city"] = inputText;
+            string output = Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText("options.json", output);
         }
     }
 
