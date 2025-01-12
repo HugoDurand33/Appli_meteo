@@ -17,15 +17,16 @@ public partial class MainWindow : Window
 {
 
     string apiKey = getAPikey();
+    string default_city = getDefaultCity();
     public MainWindow()
     {
         InitializeComponent();
         this.DataContext = this;
-        _ = InitializeApiKeyAndMakeRequest();
-        _ = MakeApiRequestAsyncForecast("Bordeaux");
+        _ = InitializeApiKeyAndMakeRequest(default_city);
+        _ = MakeApiRequestAsyncForecast(default_city);
     }
 
-    public async Task InitializeApiKeyAndMakeRequest(string city_api = "Bordeaux")
+    public async Task InitializeApiKeyAndMakeRequest(string city_api)
     {
     try
     {
@@ -68,15 +69,37 @@ public partial class MainWindow : Window
         string inputText = inputTextBox.Text;
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         if (inputText == null) {
-            inputText = "Bordeaux";
+            inputText = default_city;
         }
         _ = InitializeApiKeyAndMakeRequest(inputText);
         _ = MakeApiRequestAsyncForecast(inputText);
     }
 
-    private void OnKeyDown(object sender, KeyEventArgs e) {
+    private void OnKeyDownAPIRequest(object sender, KeyEventArgs e) {
         if (e.Key == Key.Enter) {
             OnSubmitClicked(sender, null);
+        }
+    }
+
+    private void OnKeyDownChangeDefaultCity(object sender, KeyEventArgs e) {
+        if (e.Key == Key.Enter) {
+            if (File.Exists("options.json")) {
+                var configFilePath = "options.json"; 
+            
+                var json = File.ReadAllText(configFilePath); 
+             
+                dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+
+                string inputText = inputDefaultCity.Text;
+
+                if (inputText == null) {
+                    return;
+                }
+                jsonObj["city"] = inputText;
+                string output = Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented);
+                File.WriteAllText("options.json", output);
+
+            }
         }
     }
 
@@ -145,7 +168,7 @@ public partial class MainWindow : Window
                     }
                     text_combobox.Content = item["dt"];
                     string formatted_date = date.ToString("dd MMMM yyyy , hh", CultureInfo.CreateSpecificCulture("fr-FR"));
-                    text_combobox.Content = formatted_date + ":00";
+                    text_combobox.Content = formatted_date + ":00h";
                     cpt += 1;
                 }
             }
@@ -184,5 +207,22 @@ public partial class MainWindow : Window
             apikey = "changer ce text"; // changer ce text pour tester le code avec votre cle api
         }
         return apikey; // peut pas être null, normalement
+    }
+
+    public static string getDefaultCity() {
+        var city = "";
+        if (File.Exists("options.json")) {
+            var configFilePath = "options.json"; 
+            // Read the configuration file
+            var json = File.ReadAllText(configFilePath); 
+            // Parse the JSON 
+            var jObject = JObject.Parse(json); 
+            // Get the API key 
+            city = jObject["city"]?.ToString(); 
+        }
+        else {
+            city = "Bordeaux";
+        }
+        return city;
     }
 }
